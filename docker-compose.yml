@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  loihayydep_api:
+    build:
+      dockerfile: Dockerfile
+    image: tuanitpro/loihayydep_api
+    container_name: loihayydep_api
+    
+    ports:
+    - 3000:3000
+    networks:
+      - bee_network
+
+networks:
+  bee_network:
+    driver: bridge
