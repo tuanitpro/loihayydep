@@ -1,17 +1,30 @@
-import { RequestMethod } from '@nestjs/common';
+import { RequestMethod, VersioningType, VERSION_NEUTRAL } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as compression from 'compression';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('v1', {
+  app.setGlobalPrefix('', {
     exclude: [
       { path: '/', method: RequestMethod.GET },
       { path: 'swagger', method: RequestMethod.GET },
     ],
-  })
-  const allowedOrigin = process.env.ALLOWED_ORIGINS_CORS || 'http://localhost:3000,https://loihayydep.tuanitpro.com'
-  const allowedOrigins = allowedOrigin.split(',')
+  });
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: VERSION_NEUTRAL,
+  });
+
+  app.use(helmet());
+  app.use(compression());
+
+  const allowedOrigin =
+    process.env.ALLOWED_ORIGINS_CORS ||
+    'http://localhost:3000,https://loihayydep.tuanitpro.com';
+  const allowedOrigins = allowedOrigin.split(',');
   const corsOptions = {
     origin: allowedOrigins,
     allowedHeaders:
@@ -20,9 +33,9 @@ async function bootstrap() {
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
-  }
+  };
 
-  app.enableCors(corsOptions)
+  app.enableCors(corsOptions);
   await app.listen(3500);
 }
 bootstrap();
